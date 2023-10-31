@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Stopwatch</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        height: 100%;
+      }
+
+      body {
+        background-color: #000;
+        font-family: monospace;
+        margin: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: safe center;
+        align-items: safe center;
+      }
+
+      .timer-container {
+        color: #fff;
+        font-size: min(16vw, 128px);
+        padding: 8px 16px;
+      }
+
+      .time-part-separator {
+        color: #444;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="timer-container">
+      <span id="hours">00</span><span class="time-part-separator">:</span
+      ><span id="minutes">00</span><span class="time-part-separator">:</span
+      ><span id="seconds">00</span>
+    </div>
+    <script>
+      (() => {
+        "use strict";
+
+        const $hours = document.getElementById("hours");
+        const $minutes = document.getElementById("minutes");
+        const $seconds = document.getElementById("seconds");
+
+        const formatTimePart = (timePart) => {
+          if (timePart < 10) {
+            return `0${timePart}`;
+          } else {
+            return timePart.toString();
+          }
+        };
+
+        const makeTimePartUpdater = ($element) => {
+          let value;
+          return (newValue) => {
+            if (newValue === value) {
+              return false;
+            }
+            value = newValue;
+            $element.textContent = value;
+            return true;
+          };
+        };
+
+        const updateHours = makeTimePartUpdater($hours);
+        const updateMinutes = makeTimePartUpdater($minutes);
+        const updateSeconds = makeTimePartUpdater($seconds);
+
+        const UPDATE_INTERVAL_MS = 100;
+        const startTime = Date.now();
+        const updateTimer = () => {
+          const elapsedTimeMs = Date.now() - startTime;
+          const elapsedTimeSeconds = Math.floor(elapsedTimeMs / 1000);
+
+          let changed = false;
+          let count = elapsedTimeSeconds;
+          const formattedSeconds = formatTimePart(count % 60);
+          changed ||= updateSeconds(formattedSeconds);
+          count = Math.floor(count / 60);
+          const formattedMinutes = formatTimePart(count % 60);
+          changed ||= updateMinutes(formattedMinutes);
+          count = Math.floor(count / 60);
+          const formattedHours = formatTimePart(count);
+          changed ||= updateHours(formattedHours);
+          if (changed) {
+            document.title = `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+          }
+        };
+        setInterval(updateTimer, UPDATE_INTERVAL_MS);
+        updateTimer();
+      })();
+    </script>
+  </body>
+</html>
